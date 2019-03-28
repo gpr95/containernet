@@ -704,7 +704,7 @@ class Docker ( Host ):
                      'network_mode': None,
                      'publish_all_ports': True,
                      'port_bindings': {},
-                     'log_driver': 'syslog',
+                     'log_driver': 'json-file',
                      'log_opts': {},
                      'ports': [],
                      'dns': [],
