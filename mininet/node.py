@@ -704,6 +704,8 @@ class Docker ( Host ):
                      'network_mode': None,
                      'publish_all_ports': True,
                      'port_bindings': {},
+                     'log_driver': 'syslog',
+                     'log_opts': {},
                      'ports': [],
                      'dns': [],
                      }
@@ -726,6 +728,8 @@ class Docker ( Host ):
         self.network_mode = defaults['network_mode']
         self.publish_all_ports = defaults['publish_all_ports']
         self.port_bindings = defaults['port_bindings']
+        self.log_driver = defaults['log_driver']
+        self.log_opts = defaults['log_opts']
         self.dns = defaults['dns']
 
         # setup docker client
@@ -752,6 +756,10 @@ class Docker ( Host ):
             mem_limit=self.resources.get('mem_limit'),
             cpuset_cpus=self.resources.get('cpuset_cpus'),
             dns=self.dns,
+            log_config={
+                'type': self.log_driver,
+                'config': self.log_opts
+            }
         )
 
         if kwargs.get("rm", False):
