@@ -27,8 +27,8 @@ def topology():
     h2 = net.addHost('h2')
 
     info('*** Adding docker containers\n')
-    d1 = net.addDocker('d1', ip='10.0.0.251', dimage="ubuntu:trusty", log_driver='fluentd', log_opts={'fluentd-address': '192.168.110.118:9880','tag':'docker-host-1'})
-    d2 = net.addDocker('d2', ip='10.0.0.252', dimage="ubuntu:trusty", cpu_period=50000, cpu_quota=25000, log_driver='fluentd', log_opts={'fluentd-address':'192.168.110.118:9880','tag':'docker-host-1'})
+    d1 = net.addDocker('d1', ip='10.0.0.251', dimage="host-fluentd:latest", log_driver='fluentd', log_opts={'fluentd-address': '192.168.110.118:24224','tag':'docker-host-1'})
+    d2 = net.addDocker('d2', ip='10.0.0.252', dimage="host-fluentd:latest", cpu_period=50000, cpu_quota=25000, log_driver='fluentd', log_opts={'fluentd-address':'192.168.110.118:24224','tag':'docker-host-2'})
     d3 = net.addHost(
         'd3', ip='11.0.0.253', cls=Docker, dimage="ubuntu:trusty", cpu_shares=20)
     # using advanced features like volumes and exposed ports
