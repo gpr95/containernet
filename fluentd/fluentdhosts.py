@@ -7,32 +7,51 @@ to it.
 """
 
 from mininet.net import Containernet
-from mininet.node import Controller, Docker, OVSSwitch
+from mininet.node import Controller, Docker, OVSSwitch, RemoteController
 from mininet.cli import CLI
 from mininet.log import setLogLevel, info
 from mininet.link import TCLink, Link
 
+CONTROLLER_IP = '192.168.110.110'
+FLUENTD_IP = '192.168.110.118'
+
 
 def topology():
-
     "Create a network with some docker containers acting as hosts."
 
     net = Containernet(controller=Controller)
 
     info('*** Adding controller\n')
-    net.addController('c0')
+    net.addController('c0', controller=RemoteController, ip=CONTROLLER_IP, port=6653)
 
     info('*** Adding hosts\n')
     h1 = net.addHost('h1')
     h2 = net.addHost('h2')
 
     info('*** Adding docker containers\n')
-    d1 = net.addDocker('d1', ip='10.0.0.251', dimage="host-fluentd:latest", log_driver='fluentd', log_opts={'fluentd-address': '192.168.110.118:24224','tag':'docker-host-1'})
-    d2 = net.addDocker('d2', ip='10.0.0.252', dimage="host-fluentd:latest", cpu_period=50000, cpu_quota=25000, log_driver='fluentd', log_opts={'fluentd-address':'192.168.110.118:24224','tag':'docker-host-2'})
+    d1 = net.addDocker(
+        'd1', ip='10.0.0.251',
+        dimage="host-fluentd:latest",
+        log_driver='fluentd',
+        log_opts={'fluentd-address': '%s:24224'.format(FLUENTD_IP),
+                  'tag': 'docker-host-1'},
+        environment={'FLUENTD_IP': FLUENTD_IP}
+    )
+    d2 = net.addDocker(
+        'd1', ip='10.0.0.252',
+        dimage="host-fluentd:latest",
+        cpu_period=50000,
+        cpu_quota=25000,
+        log_driver='fluentd',
+        log_opts={'fluentd-address': '%s:24224'.format(FLUENTD_IP),
+                  'tag': 'docker-host-2'},
+        environment={'FLUENTD_IP': FLUENTD_IP}
+    )
     d3 = net.addHost(
         'd3', ip='11.0.0.253', cls=Docker, dimage="ubuntu:trusty", cpu_shares=20)
     # using advanced features like volumes and exposed ports
-    d5 = net.addDocker('d5', dimage="ubuntu:trusty", volumes=["/:/mnt/vol1:rw"], ports=[9999], port_bindings={9999:9999}, publish_all_ports=True)
+    d5 = net.addDocker('d5', dimage="ubuntu:trusty", volumes=["/:/mnt/vol1:rw"], ports=[9999],
+                       port_bindings={9999: 9999}, publish_all_ports=True)
 
     info('*** Adding switch\n')
     s1 = net.addSwitch('s1')
@@ -45,7 +64,7 @@ def topology():
     net.addLink(h2, s2)
     net.addLink(d2, s2)
     net.addLink(s1, s2)
-    #net.addLink(s1, s2, cls=TCLink, delay="100ms", bw=1, loss=10)
+    # net.addLink(s1, s2, cls=TCLink, delay="100ms", bw=1, loss=10)
     # try to add a second interface to a docker container
     net.addLink(d2, s3, params1={"ip": "11.0.0.254/8"})
     net.addLink(d3, s3)
@@ -64,8 +83,8 @@ def topology():
     # we have to specify a manual ip when we add a link at runtime
     net.addLink(d4, s1, params1={"ip": "10.0.0.254/8"})
     # other options to do this
-    #d4.defaultIntf().ifconfig("10.0.0.254 up")
-    #d4.setIP("10.0.0.254")
+    # d4.defaultIntf().ifconfig("10.0.0.254 up")
+    # d4.setIP("10.0.0.254")
 
     net.ping([d1], manualdestip="10.0.0.254")
 
@@ -74,6 +93,7 @@ def topology():
 
     info('*** Stopping network')
     net.stop()
+
 
 if __name__ == '__main__':
     setLogLevel('info')
