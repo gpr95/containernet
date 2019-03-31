@@ -1,11 +1,4 @@
 #!/usr/bin/python
-
-"""
-This example shows how to create a simple network and
-how to create docker containers (based on existing images)
-to it.
-"""
-
 from mininet.net import Containernet
 from mininet.node import Controller, Docker, OVSSwitch, RemoteController
 from mininet.cli import CLI
@@ -33,17 +26,17 @@ def topology():
         'd1', ip='10.0.0.251',
         dimage="host-fluentd:latest",
         log_driver='fluentd',
-        log_opts={'fluentd-address': '%s:24224'.format(FLUENTD_IP),
+        log_opts={'fluentd-address': '{}:24224'.format(FLUENTD_IP),
                   'tag': 'docker-host-1'},
         environment={'FLUENTD_IP': FLUENTD_IP}
     )
     d2 = net.addDocker(
-        'd1', ip='10.0.0.252',
+        'd2', ip='10.0.0.252',
         dimage="host-fluentd:latest",
         cpu_period=50000,
         cpu_quota=25000,
         log_driver='fluentd',
-        log_opts={'fluentd-address': '%s:24224'.format(FLUENTD_IP),
+        log_opts={'fluentd-address': '{}:24224'.format(FLUENTD_IP),
                   'tag': 'docker-host-2'},
         environment={'FLUENTD_IP': FLUENTD_IP}
     )

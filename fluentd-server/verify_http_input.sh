@@ -1,4 +1,3 @@
 #!/bin/bash
-curl -X POST -d 'json={"action":"test","label":"test"}' \ 
-  http://192.168.110.118:9880/test.tag.here
+curl -X POST -d 'json={"action":"test","label":"test"}'  http://127.0.0.1:9880/test.tag.here
 
