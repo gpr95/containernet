@@ -3,11 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/sendgrid/rest"
 	"github.com/streadway/amqp"
 	"log"
 	"time"
 )
 
+const controllerHost = "http://192.168.110.110:8080"
 var (
 	uri          = flag.String("uri", "amqp://guest:guest@192.168.110.102:5672/", "AMQP URI")
 	exchange     = flag.String("exchange", "containernet_msg", "Durable, non-auto-deleted AMQP exchange name")
@@ -22,7 +24,64 @@ func init() {
 	flag.Parse()
 }
 
+func getLinks() {
+	switches := "/wm/topology/links/json"
+	baseURL := controllerHost + switches
+	method := rest.Get
+	request := rest.Request{
+		Method:  method,
+		BaseURL: baseURL,
+	}
+	response, err := rest.Send(request)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(response.StatusCode)
+		fmt.Println(response.Body)
+		fmt.Println(response.Headers)
+	}
+}
+
+func getFlowsOfSwitch(switchName string) {
+	switches := "/wm/staticentrypusher/list/"+ switchName + "/json"
+	baseURL := controllerHost + switches
+	method := rest.Get
+	request := rest.Request{
+	Method:  method,
+	BaseURL: baseURL,
+	}
+	response, err := rest.Send(request)
+	if err != nil {
+	fmt.Println(err)
+	} else {
+	fmt.Println(response.StatusCode)
+	fmt.Println(response.Body)
+	fmt.Println(response.Headers)
+	}
+}
+
+func getSwitches() {
+	switches := "/wm/core/controller/switches/json"
+	baseURL := controllerHost + switches
+	method := rest.Get
+	request := rest.Request{
+		Method:  method,
+		BaseURL: baseURL,
+	}
+	response, err := rest.Send(request)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(response.StatusCode)
+		fmt.Println(response.Body)
+		fmt.Println(response.Headers)
+	}
+}
+
 func main() {
+
+
+
 	c, err := NewConsumer(*uri, *exchange, *exchangeType, *queue, *bindingKey, *consumerTag)
 	if err != nil {
 		log.Fatalf("%s", err)
